@@ -1,17 +1,28 @@
+require('dotenv').config(); //import dotenv
+
 const express = require('express'); //import express
-const app = express(); //notre application express
+const helmet = require("helmet"); //import helmet
 const bodyParser = require('body-parser'); //package pour extraire l'objet JSON de la demande
 const mongoose = require('mongoose'); //import mangoose
 const sauceRoutes = require('./routes/sauce'); //import des routes pour les sauces
 const userRoutes = require('./routes/user'); //import des routes pour les users
 const path = require('path'); //nous donne acces au systeme de chemin exact pour les fichiers 
 
-mongoose.connect('mongodb+srv://shock:pat94@cluster0.dgchr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+const app = express(); //notre application express
+
+const mongoCredentials = process.env.MONGO_CREDENTIALS;
+if (!mongoCredentials){ //si different du mdp
+    console.error('Les identifiants login:password de la base mongo doivent être fournis dans la variable d\'environnement MONGO_CREDENTIALS');
+    process.exit(1); //si different de 0 indique que le programme c'est terminé sur une erreur donc 0 est ok
+}
+
+mongoose.connect(mongoCredentials,
     {useNewUrlParser: true,
     useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
+app.use(helmet()); //sécrurise les headers
 
 app.use((req, res, next) => { //Le header pour toutes les requetes 
     res.setHeader('Access-Control-Allow-Origin', '*');

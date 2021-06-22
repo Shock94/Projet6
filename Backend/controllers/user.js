@@ -1,7 +1,14 @@
+require('dotenv').config(); //import dotenv
+
 const bcrypt = require('bcrypt'); //import de bcrypt
 const jwt = require('jsonwebtoken'); //import token d'authentificationcon
 const User = require('../models/User'); //import du model user
 
+const Token = process.env.TOKEN;
+if (!Token){ //si different du token
+    console.error('Le Token doit être fournis dans la variable d\'environnement TOKEN');
+    process.exit(1); //si different de 0 indique que le programme c'est terminé sur une erreur donc 0 est ok
+}
 
 exports.signup = (req, res, next) => { // methode asynchrone
     bcrypt.hash(req.body.password, 10) //fonction pour crypté un mdp, donne le mdp dans le corp de la req et hash 10 fois
@@ -32,7 +39,7 @@ exports.login = (req, res, next) => {
                 userId: user._id, //l'identifiant de l'utilisateur dans la base
                 token: jwt.sign( //fonction sign de jsonwebtoken
                     { userId: user._id }, //les données qu'on veut encoder a l'interieur du token; objet avec le user de l'utilisateur
-                    'RANDOM_TOKEN_SECRET', //la cle secrete de l'encodage
+                    Token, //la cle secrete de l'encodage
                     { expiresIn: '24h' } //expiration de 24 du token
                 )
             });
